@@ -19,6 +19,7 @@ public class Lighthouse {
         findLighthouse();
         turnOnRays();
         printResultMaze();
+        writeMaze();
     }
 
     private void printMaze() {
@@ -156,6 +157,22 @@ public class Lighthouse {
             }
 
             resultMaze[lighthouse.y()][lighthouse.x()] = 'O';
+        }
+    }
+
+    private void writeMaze() {
+        try {
+            BufferedWriter bw = new BufferedWriter(new FileWriter("src/main/resources/mazeRayed.txt"));
+
+            for (int i = 0; i < N + 2; i++) {
+                for (int j = 0; j < M + 2; j++) {
+                    bw.write(resultMaze[i][j]);
+                }
+                bw.newLine();
+            }
+            bw.flush();
+        } catch (IOException e) {
+            System.out.println("Error writing maze.");
         }
     }
 }
