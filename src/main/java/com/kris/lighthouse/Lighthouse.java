@@ -7,14 +7,18 @@ public class Lighthouse {
     private int N, M;
     private char[][] maze;
     private char[][] resultMaze;
-    private int lighthouseX, lighthouseY;
+    private final Block lighthouse;
 
-    public Lighthouse() {}
+    public Lighthouse() {
+        lighthouse = new Block();
+    }
 
     public void run(String filePath) {
         readMaze(filePath);
         initResultMaze();
         findLighthouse();
+        turnOnRays();
+        printResultMaze();
     }
 
     private void printMaze() {
@@ -27,6 +31,7 @@ public class Lighthouse {
             }
             System.out.println();
         }
+        System.out.println();
     }
 
     private void printResultMaze() {
@@ -39,6 +44,7 @@ public class Lighthouse {
             }
             System.out.println();
         }
+        System.out.println();
     }
 
     private void readMaze(String filePath) {
@@ -90,14 +96,66 @@ public class Lighthouse {
         for (int i = 1; i < N + 1; i++) {
             for (int j = 1; j < M + 1; j++) {
                 if (resultMaze[i][j] == 'X') {
-                    lighthouseX = i;
-                    lighthouseY = j;
+                    lighthouse.setX(j).setY(i);
 
-                    System.out.println("Lighthouse: " + lighthouseY + " " + lighthouseX);
+                    System.out.println("Lighthouse: " + lighthouse.y() + " " + lighthouse.x());
                     return;
                 }
             }
         }
         System.out.println("Lighthouse not found.");
+    }
+
+    private void turnOnRays() {
+        Block currentBlock = new Block();
+        Ray ray = new Ray();
+
+        for (int i = 1; i <= 4; i++) {
+            currentBlock.setX(lighthouse.x()).setY(lighthouse.y());
+            ray.setSide(i);
+
+            while (!ray.stop(resultMaze[currentBlock.y() + ray.getLeft().y()][currentBlock.x() + ray.getLeft().x()],
+                    resultMaze[currentBlock.y() + ray.getRight().y()][currentBlock.x() + ray.getRight().x()],
+                    resultMaze[currentBlock.y() + ray.getDiagonal().y()][currentBlock.x() + ray.getDiagonal().x()])) {
+
+                int reflectCase = ray.reflect(resultMaze[currentBlock.y() + ray.getLeft().y()][currentBlock.x() + ray.getLeft().x()],
+                        resultMaze[currentBlock.y() + ray.getRight().y()][currentBlock.x() + ray.getRight().x()],
+                        resultMaze[currentBlock.y() + ray.getDiagonal().y()][currentBlock.x() + ray.getDiagonal().x()]);
+
+                if (reflectCase == 0) {
+                    currentBlock.setX(currentBlock.x() + ray.getDiagonal().x())
+                            .setY(currentBlock.y() + ray.getDiagonal().y());
+                    if (resultMaze[currentBlock.y()][currentBlock.x()] == ray.getOppositeRay()) {
+                        resultMaze[currentBlock.y()][currentBlock.x()] = Ray.crossRays;
+                    }
+                    else if (resultMaze[currentBlock.y()][currentBlock.x()] == '.') {
+                        resultMaze[currentBlock.y()][currentBlock.x()] = ray.getRay();
+                    }
+                }
+                else if (reflectCase == 1) {
+                    currentBlock.setX(currentBlock.x() + ray.getRight().x())
+                            .setY(currentBlock.y() + ray.getRight().y());
+                    if (resultMaze[currentBlock.y()][currentBlock.x()] == ray.getOppositeRay()) {
+                        resultMaze[currentBlock.y()][currentBlock.x()] = Ray.crossRays;
+                    }
+                    else if (resultMaze[currentBlock.y()][currentBlock.x()] == '.') {
+                        resultMaze[currentBlock.y()][currentBlock.x()] = ray.getOppositeRay();
+                    }
+                }
+                else if (reflectCase == 2) {
+                    currentBlock.setX(currentBlock.x() + ray.getLeft().x())
+                            .setY(currentBlock.y() + ray.getLeft().y());
+                    if (resultMaze[currentBlock.y()][currentBlock.x()] == ray.getOppositeRay()) {
+                        resultMaze[currentBlock.y()][currentBlock.x()] = Ray.crossRays;
+                    }
+                    else if (resultMaze[currentBlock.y()][currentBlock.x()] == '.') {
+                        resultMaze[currentBlock.y()][currentBlock.x()] = ray.getOppositeRay();
+                    }
+                }
+                ray.changeSide(reflectCase);
+            }
+
+            resultMaze[lighthouse.y()][lighthouse.x()] = 'O';
+        }
     }
 }
