@@ -50,8 +50,10 @@ public class Ray {
     }
 
     public boolean stop(char left, char right, char diagonal) {
-        String diagStopCase = "\\/X.";
-        return (left == '*' && right == '*') || (diagStopCase.contains(String.valueOf(left)) && diagStopCase.contains(String.valueOf(right)) && diagonal == '*');
+        String diagStopCase = "\\/.O";
+        String lrStopCase = "*O";
+
+        return (lrStopCase.contains(String.valueOf(left)) && lrStopCase.contains(String.valueOf(right))) || (diagStopCase.contains(String.valueOf(left)) && diagStopCase.contains(String.valueOf(right)) && diagonal == '*');
     }
 
     public int reflect(char left, char right, char diagonal) {
